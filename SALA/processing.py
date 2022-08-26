@@ -582,7 +582,7 @@ class SALAFrame:
             raise ValueError("Error: Missing timezone, latitude, or longitude info.")
 
         # add location info for calculating astral data
-        city = LocationInfo("location", "region", self._timezone, self._latitude, self._longitude)
+        city = LocationInfo(self._latitude, self._longitude)
         self._data["Sunrise"] = self._data["Date"].apply( lambda x: sun.sunrise(city.observer,
                                                                            x,
                                                                            tzinfo = city.tzinfo))
@@ -755,10 +755,12 @@ class SALAFrame:
                 sleeps['DT'] = DT
                 sleeps.reset_index(drop = True).set_index(['UID','DT'])
                 sleepers.append(sleeps)
-        short_frame = (
-                       pd.concat(sleepers).reset_index().drop('DateTime',axis=1)
-                       .set_index(['UID','DT']).drop_duplicates()
-                       )
+
+            short_frame = pd.concat(sleepers).reset_index()
+            # short_frame = (
+            #                pd.concat(sleepers).reset_index().drop('DateTime',axis=1)
+            #                .set_index(['UID','DT']).drop_duplicates()
+            #                )
         timing_data["Sleep onset"] = sleep_onsets
         timing_data["Sleep offset"] = sleep_offsets
         timing_data["Sleep duration"] = sleep_durations
@@ -778,3 +780,5 @@ def remove_first_day(data):
     """
     return data[(data["Last Light"].apply(np.isnat) == False)
                & (data["Date"] != data["Date"].min())]
+
+# %%
